@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"net"
+	"time"
 )
 
 func handleClient(msgHandler *messages.MessageHandler, directory string) {
@@ -18,19 +19,21 @@ func handleClient(msgHandler *messages.MessageHandler, directory string) {
 		case nil:
 			log.Println("Received an empty message, terminating client")
 			msgHandler.Close()
-			return
+			break
 		default:
 			log.Printf("Unexpected message type: %T", msg)
 		}
+		time.Sleep(1 * time.Second)
 	}
 }
 
 func handleClimateData(msg *messages.Wrapper_ClimateData) {
-	timestamp := msg.ClimateData.UTC_TIMESTAMP
-	airTemperature := msg.ClimateData.AIR_TEMPERATURE
-
-	log.Printf("Timestamp: %T", timestamp)
-	log.Printf("Air Temperature: %T", airTemperature)
+	timestamp := msg.ClimateData.GetUTC_TIMESTAMP()
+	airTemperature := msg.ClimateData.GetAIR_TEMPERATURE()
+	solarRadiation := msg.ClimateData.GetSOLAR_RADIATION()
+	log.Printf("Timestamp: %v", timestamp)
+	log.Printf("Air Temperature: %v", airTemperature)
+	log.Printf("Solar Radiation: %v", solarRadiation)
 }
 
 func main() {

@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"file/messages"
-	"fmt"
 	"log"
 	"net"
 	"os"
@@ -33,9 +32,7 @@ func readFile(filename string) {
 
 func parseLine(line string) {
 	words := strings.Fields(line)
-
 	timestamp, _ := strconv.ParseInt(words[1], 10, 64)
-	fmt.Println(timestamp)
 	longitude, _ := strconv.ParseFloat(words[6], 32)
 	latitude, _ := strconv.ParseFloat(words[7], 32)
 	air_temperature, _ := strconv.ParseFloat(words[8], 32)
