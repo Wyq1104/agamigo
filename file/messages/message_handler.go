@@ -3,8 +3,9 @@ package messages
 import (
 	"encoding/binary"
 	"fmt"
-	"google.golang.org/protobuf/proto"
 	"net"
+
+	"google.golang.org/protobuf/proto"
 )
 
 type MessageHandler struct {
@@ -34,10 +35,10 @@ func (m *MessageHandler) Send(wrapper *Wrapper) error {
 	if err != nil {
 		return err
 	}
-    
+
 	prefix := make([]byte, 8)
 	binary.LittleEndian.PutUint64(prefix, uint64(len(serialized)))
-	
+
 	m.conn.Write(prefix)
 	m.conn.Write(serialized)
 	return nil
@@ -49,7 +50,7 @@ func (m *MessageHandler) Receive() (*Wrapper, error) {
 
 	payloadSize := binary.LittleEndian.Uint64(prefix)
 	payload := make([]byte, payloadSize)
-	
+
 	total := uint64(0)
 	for total < payloadSize {
 		n, _ := m.conn.Read(payload[total:])

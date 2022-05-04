@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"file/messages"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -34,6 +35,7 @@ func parseLine(line string) {
 	words := strings.Fields(line)
 
 	timestamp, _ := strconv.ParseInt(words[1], 10, 64)
+	fmt.Println(timestamp)
 	longitude, _ := strconv.ParseFloat(words[6], 32)
 	latitude, _ := strconv.ParseFloat(words[7], 32)
 	air_temperature, _ := strconv.ParseFloat(words[8], 32)
@@ -42,28 +44,28 @@ func parseLine(line string) {
 	surface_temperature, _ := strconv.ParseFloat(words[12], 32)
 	relative_humidity, _ := strconv.ParseInt(words[15], 10, 64)
 
-	sendData(timestamp, longitude, latitude, air_temperature, precipitaion, solar_radiation, surface_temperature, relative_humidity)
+	sendData(timestamp, float32(longitude), float32(latitude), float32(air_temperature), float32(precipitaion), float32(solar_radiation), float32(surface_temperature), relative_humidity)
 
 }
 
-func sendData(timestamp int64, longitude float64, latitude float64, air_temperature float64, precipitaion float64, solar_radiation float64,
-	surface_temperature float64, relative_humidity int64) {
+func sendData(timestamp int64, longitude float32, latitude float32, air_temperature float32, precipitaion float32, solar_radiation float32,
+	surface_temperature float32, relative_humidity int64) {
 	nodename := "localhost"
-	conn, err := net.Dial("tcp", nodename+":20666")
+	conn, err := net.Dial("tcp", nodename+":20111")
 	if err != nil {
 		log.Fatalln(err.Error())
 	}
 	msgHandler := messages.NewMessageHandler(conn)
-	msg := messages.ToMapper{UTC_TIMESTAMP: timestamp, LONGITUDE: longitude, LATITUDE: latitude, AIR_TEMPERATURE: air_temperature,
+	msg := messages.ClimateData{UTC_TIMESTAMP: timestamp, LONGITUDE: longitude, LATITUDE: latitude, AIR_TEMPERATURE: air_temperature,
 		PRECIPITATION: precipitaion, SOLAR_RADIATION: solar_radiation, SURFACE_TEMPERATURE: surface_temperature, RELATIVE_HUMIDITY: relative_humidity}
 	wrapper := &messages.Wrapper{
-		Msg: &messages.Wrapper_ToMapperMessage{ToMapperMessage: &msg},
+		Msg: &messages.Wrapper_ClimateData{ClimateData: &msg},
 	}
 	msgHandler.Send(wrapper)
 }
 
 func main() {
-	// readFile("../../data/test.txt")
+	readFile("../../data/test.txt")
 	// parseLine("63892 20180101 0005 20171231 1805      5  -88.14   32.84    -1.0     0.0 -99999 0 -9999.0 U 0 -9999 0 -99.000 -9999.0  1212 0 -99.00 0")
 
 }

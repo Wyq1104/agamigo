@@ -11,3 +11,9 @@ message ClimateData{
     float SURFACE_TEMPERATURE = 7;
     int64 RELATIVE_HUMIDITY = 8;
 }
+
+message Wrapper {
+    oneof msg {
+        ClimateData climate_data = 1;
+    }
+}
