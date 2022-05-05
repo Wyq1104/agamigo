@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func readFile(filename string) {
@@ -22,6 +23,7 @@ func readFile(filename string) {
 	for scanner.Scan() {
 		// fmt.Println(scanner.Text())
 		parseLine(scanner.Text())
+		time.Sleep(5 * time.Second)
 	}
 
 	if err := scanner.Err(); err != nil {

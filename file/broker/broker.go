@@ -4,9 +4,48 @@ import (
 	"file/messages"
 	"fmt"
 	"log"
+	"math/rand"
 	"net"
 	"time"
 )
+
+type Item struct {
+	airTemperature float32
+	solarRadiation float32
+	timestamp      int64
+	priority       float64
+	index          int
+}
+
+type PriorityQueue []*Item
+
+func (pq PriorityQueue) Less(i, j int) bool {
+	return pq[i].priority < pq[j].priority
+}
+
+func (pq *PriorityQueue) Pop() interface{} {
+	old := *pq
+	n := len(old)
+	item := old[n-1]
+	item.index = -1
+	*pq = old[0 : n-1]
+	return item
+}
+
+func (pq *PriorityQueue) Push(x interface{}) {
+	n := len(*pq)
+	item := x.(*Item)
+	item.index = n
+	*pq = append(*pq, item)
+}
+
+func (pq PriorityQueue) Swap(i, j int) {
+	pq[i], pq[j] = pq[j], pq[i]
+	pq[i].index = i
+	pq[j].index = j
+}
+
+var priorityQueue = make(PriorityQueue, 0)
 
 func handleClient(msgHandler *messages.MessageHandler, directory string) {
 
@@ -34,6 +73,38 @@ func handleClimateData(msg *messages.Wrapper_ClimateData) {
 	log.Printf("Timestamp: %v", timestamp)
 	log.Printf("Air Temperature: %v", airTemperature)
 	log.Printf("Solar Radiation: %v", solarRadiation)
+
+	doSample(airTemperature, solarRadiation, timestamp)
+}
+
+func doSample(airTemperature float32, solarRadiation float32, timestamp int64) {
+	ran := rand.Float64()
+	if len(priorityQueue) < 5 {
+		priorityQueue.Push(&Item{airTemperature: airTemperature, solarRadiation: solarRadiation, timestamp: timestamp, priority: ran})
+	} else {
+		i := priorityQueue.Pop().(*Item)
+		if i.priority < ran {
+			priorityQueue.Push(&Item{airTemperature: airTemperature, solarRadiation: solarRadiation, timestamp: timestamp, priority: ran})
+		} else {
+			priorityQueue.Push(i)
+		}
+	}
+	calculateSample()
+}
+
+func calculateSample() {
+
+	log.Printf("Size of the PQ: %d\n", len(priorityQueue))
+
+	var totalTemperature = 0.0
+	var totalSolar = 0.0
+	for _, item := range priorityQueue {
+		totalTemperature += float64(item.airTemperature)
+		totalSolar += float64(item.solarRadiation)
+	}
+	log.Printf("Aggregation Result:")
+	log.Printf("Air Temperature: %v", totalTemperature/float64(len(priorityQueue)))
+	log.Printf("Solar Radiation: %v", totalSolar/float64(len(priorityQueue)))
 }
 
 func main() {
