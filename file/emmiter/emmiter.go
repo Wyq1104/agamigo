@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"file/messages"
+	"fmt"
 	"log"
 	"net"
 	"os"
@@ -12,6 +13,9 @@ import (
 )
 
 func readFile(filename string) {
+
+	size := 0
+
 	file, err := os.Open(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -23,8 +27,11 @@ func readFile(filename string) {
 	for scanner.Scan() {
 		// fmt.Println(scanner.Text())
 		parseLine(scanner.Text())
-		time.Sleep(5 * time.Second)
+		time.Sleep(100 * time.Millisecond)
+		size = size + 1
 	}
+
+	fmt.Printf("file size is: %d", size)
 
 	if err := scanner.Err(); err != nil {
 		log.Fatal(err)

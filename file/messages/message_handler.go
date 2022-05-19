@@ -38,8 +38,18 @@ func (m *MessageHandler) Send(wrapper *Wrapper) error {
 
 	prefix := make([]byte, 8)
 	binary.LittleEndian.PutUint64(prefix, uint64(len(serialized)))
-
 	m.conn.Write(prefix)
+	m.conn.Write(serialized)
+	return nil
+}
+
+func (m *MessageHandler) Sendout(aggdata *AggregateData) error {
+	serialized, err := proto.Marshal(aggdata)
+
+	if err != nil {
+		return err
+	}
+
 	m.conn.Write(serialized)
 	return nil
 }

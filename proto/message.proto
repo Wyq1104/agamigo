@@ -12,8 +12,14 @@ message ClimateData{
     int64 RELATIVE_HUMIDITY = 8;
 }
 
+message AggregateData{
+    string AGGREGATE_NAME = 1;
+    float AGGREGATE_VALUE = 2;
+}
+
 message Wrapper {
     oneof msg {
         ClimateData climate_data = 1;
+        AggregateData aggregate_data = 2;
     }
 }

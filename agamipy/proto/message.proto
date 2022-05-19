@@ -1,0 +1,25 @@
+syntax = "proto3";
+option go_package = "./messages";
+
+message ClimateData{
+    int64 UTC_TIMESTAMP = 1;
+    float LONGITUDE = 2;
+    float LATITUDE = 3;
+    float AIR_TEMPERATURE = 4;
+    float PRECIPITATION = 5;
+    float SOLAR_RADIATION = 6;
+    float SURFACE_TEMPERATURE = 7;
+    int64 RELATIVE_HUMIDITY = 8;
+}
+
+message AggregateData{
+    string AGGREGATE_NAME = 1;
+    float AGGREGATE_VALUE = 2;
+}
+
+message Wrapper {
+    oneof msg {
+        ClimateData climate_data = 1;
+        AggregateData aggregate_data = 2;
+    }
+}

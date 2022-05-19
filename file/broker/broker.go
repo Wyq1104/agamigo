@@ -6,7 +6,6 @@ import (
 	"log"
 	"math/rand"
 	"net"
-	"time"
 )
 
 type Item struct {
@@ -62,7 +61,7 @@ func handleClient(msgHandler *messages.MessageHandler, directory string) {
 		default:
 			log.Printf("Unexpected message type: %T", msg)
 		}
-		time.Sleep(1 * time.Second)
+		//time.Sleep(500 * time.Millisecond)
 	}
 }
 
@@ -103,8 +102,20 @@ func calculateSample() {
 		totalSolar += float64(item.solarRadiation)
 	}
 	log.Printf("Aggregation Result:")
-	log.Printf("Air Temperature: %v", totalTemperature/float64(len(priorityQueue)))
-	log.Printf("Solar Radiation: %v", totalSolar/float64(len(priorityQueue)))
+	log.Printf("Air Temperature: %v", float32(totalTemperature/float64(len(priorityQueue))))
+	log.Printf("Solar Radiation: %v", float32(totalSolar/float64(len(priorityQueue))))
+	sendToVisualize("Air Temperature", float32(totalTemperature/float64(len(priorityQueue))))
+	sendToVisualize("Solar Radiation", float32(totalTemperature/float64(len(priorityQueue))))
+}
+
+func sendToVisualize(name string, value float32) {
+	conn, err := net.Dial("tcp", "localhost:20112")
+	if err != nil {
+		log.Fatalln(err.Error())
+	}
+	msgHandler := messages.NewMessageHandler(conn)
+	msg := messages.AggregateData{AGGREGATE_NAME: name, AGGREGATE_VALUE: value}
+	msgHandler.Sendout(&msg)
 }
 
 func main() {
